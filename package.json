@@ -24,6 +24,9 @@
     "globals": [
       "allure"
     ],
+    "plugins": [
+      "promise"
+    ],
     "rules": {
       "promise/prefer-await-to-then": 1,
       "@typescript-eslint/no-unsafe-call": 1,
@@ -74,43 +77,41 @@
       "@semantic-release/github"
     ]
   },
-  "resolutions": {
-    "mem": "^4.0",
-    "yargs-parser": "^13.1.2"
-  },
   "dependencies": {
-    "@jest/environment": "^27.0.3",
-    "@jest/reporters": "^27.0.2",
-    "@jest/types": "^27.0.2",
-    "allure-js-commons": "2.0.0-beta.9",
-    "ansi_up": "^5.0.1",
-    "jest-circus": "^27.0.3",
-    "jest-docblock": "^27.0.1",
-    "jest-environment-node": "^27.0.3",
+    "@jest/environment": "^27.5.1",
+    "@jest/reporters": "^27.5.1",
+    "@jest/types": "^27.5.1",
+    "allure-js-commons": "^2.0.0-beta.16",
+    "ansi_up": "^5.1.0",
+    "jest-circus": "^27.5.1",
+    "jest-docblock": "^27.5.1",
+    "jest-environment-node": "^27.5.1",
     "lodash": "^4.17.21",
-    "prettier": "^2.3.0",
-    "pretty-format": "^27.0.2",
-    "strip-ansi": "^6.0.0"
+    "prettier": "^2.6.2",
+    "pretty-format": "^27.5.1",
+    "strip-ansi": "^6.0.1"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "^5.0.1",
-    "@semantic-release/git": "^9.0.0",
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
     "@types/allure-js-commons": "^0.0.1",
     "@types/highlight.js": "^10.1.0",
-    "@types/jest": "^26.0.23",
-    "@types/lodash": "^4.14.170",
-    "@types/node": "^15.6.2",
+    "@types/jest": "^27.5.1",
+    "@types/lodash": "^4.14.182",
+    "@types/node": "^17.0.35",
     "commitizen": "^4.2.4",
-    "conventional-changelog-conventionalcommits": "^4.6.0",
-    "cz-conventional-changelog": "3.3.0",
-    "eslint-config-xo-typescript": "^0.41.1",
-    "eslint-plugin-jest": "^24.3.6",
-    "husky": "^6.0.0",
-    "jest": "^27.0.3",
-    "lint-staged": "^11.0.0",
-    "semantic-release": "^17.4.3",
-    "typescript": "^4.3.2",
-    "xo": "^0.40.2"
+    "conventional-changelog-conventionalcommits": "^4.6.3",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint-config-xo-typescript": "^0.51.1",
+    "eslint-plugin-jest": "^26.2.2",
+    "eslint-plugin-promise": "^6.0.0",
+    "husky": "^8.0.1",
+    "jest": "^27.5.1",
+    "lint-staged": "^12.4.2",
+    "rimraf": "^3.0.2",
+    "semantic-release": "^19.0.2",
+    "typescript": "^4.8.0-dev.20220520",
+    "xo": "^0.49.0"
   },
   "engines": {
     "node": ">=12.x"
@@ -130,5 +131,6 @@
     "reports",
     "collect",
     "analyze"
-  ]
+  ],
+  "packageManager": "yarn@3.2.1"
 }

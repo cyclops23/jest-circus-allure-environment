@@ -11,20 +11,21 @@ import {
 	LabelName,
 	LinkType,
 	Stage,
-	Status
+	Status,
 } from 'allure-js-commons';
 import {parseWithComments} from 'jest-docblock';
 import stripAnsi = require('strip-ansi');
-import _ = require('lodash');
+
 import prettier = require('prettier/standalone');
 import parser = require('prettier/parser-typescript');
 
 import type * as jest from '@jest/types';
+import {flattenDeep} from 'lodash';
 import JestAllureInterface, {ContentType} from './jest-allure-interface';
 import defaultCategories from './category-definitions';
 
 export default class AllureReporter {
-	currentExecutable: ExecutableItemWrapper | null = null;
+	currentExecutable: ExecutableItemWrapper | undefined;
 	private readonly allureRuntime: AllureRuntime;
 	private readonly suites: AllureGroup[] = [];
 	private readonly steps: AllureStep[] = [];
@@ -53,7 +54,7 @@ export default class AllureReporter {
 		if (options.categories) {
 			this.categories = [
 				...this.categories,
-				...options.categories
+				...options.categories,
 			];
 		}
 
@@ -64,16 +65,16 @@ export default class AllureReporter {
 		return new JestAllureInterface(this, this.allureRuntime, this.jiraUrl);
 	}
 
-	get currentSuite(): AllureGroup | null {
-		return this.suites.length > 0 ? this.suites[this.suites.length - 1] : null;
+	get currentSuite(): AllureGroup | undefined {
+		return this.suites.length > 0 ? this.suites[this.suites.length - 1] : undefined;
 	}
 
-	get currentStep(): AllureStep | null {
-		return this.steps.length > 0 ? this.steps[this.steps.length - 1] : null;
+	get currentStep(): AllureStep | undefined {
+		return this.steps.length > 0 ? this.steps[this.steps.length - 1] : undefined;
 	}
 
-	get currentTest(): AllureTest | null {
-		return this.tests.length > 0 ? this.tests[this.tests.length - 1] : null;
+	get currentTest(): AllureTest | undefined {
+		return this.tests.length > 0 ? this.tests[this.tests.length - 1] : undefined;
 	}
 
 	environmentInfo(info?: Record<string, string>) {
@@ -91,14 +92,14 @@ export default class AllureReporter {
 	}
 
 	startSuite(suiteName?: string): void {
-		const scope: AllureGroup | AllureRuntime =
-      this.currentSuite ?? this.allureRuntime;
+		const scope: AllureGroup | AllureRuntime
+      = this.currentSuite ?? this.allureRuntime;
 		const suite: AllureGroup = scope.startGroup(suiteName ?? 'Global');
 		this.pushSuite(suite);
 	}
 
 	endSuite(): void {
-		if (this.currentSuite === null) {
+		if (!this.currentSuite) {
 			throw new Error('endSuite called while no suite is running');
 		}
 
@@ -114,12 +115,12 @@ export default class AllureReporter {
 			}
 		}
 
-		this.currentSuite.endGroup();
+		this.currentSuite?.endGroup();
 		this.popSuite();
 	}
 
 	startHook(type: jest.Circus.HookType): void {
-		const suite: AllureGroup | null = this.currentSuite;
+		const suite: AllureGroup | undefined = this.currentSuite;
 
 		if (suite && type.startsWith('before')) {
 			this.currentExecutable = suite.addBefore();
@@ -131,12 +132,12 @@ export default class AllureReporter {
 	}
 
 	endHook(error?: Error): void {
-		if (this.currentExecutable === null) {
+		if (!this.currentExecutable) {
 			throw new Error('endHook called while no executable is running');
 		}
 
 		if (error) {
-			const {status, message, trace} = this.handleError(error);
+			const {status, message, trace} = AllureReporter.handleError(error);
 
 			this.currentExecutable.status = status;
 			this.currentExecutable.statusDetails = {message, trace};
@@ -150,7 +151,7 @@ export default class AllureReporter {
 	}
 
 	startTestCase(test: jest.Circus.TestEntry, state: jest.Circus.State, testPath: string): void {
-		if (this.currentSuite === null) {
+		if (!this.currentSuite) {
 			throw new Error('startTestCase called while no suite is running');
 		}
 
@@ -163,7 +164,7 @@ export default class AllureReporter {
 
 		if (test.fn) {
 			const serializedTestCode = test.fn.toString();
-			const {code, comments, pragmas} = this.extractCodeDetails(serializedTestCode);
+			const {code, comments, pragmas} = AllureReporter.extractCodeDetails(serializedTestCode);
 
 			this.setAllureReportPragmas(currentTest, pragmas);
 
@@ -178,12 +179,12 @@ export default class AllureReporter {
 			currentTest.addLabel(LabelName.THREAD, state.parentProcess.env.JEST_WORKER_ID);
 		}
 
-		currentTest = this.addSuiteLabelsToTestCase(currentTest, testPath);
+		currentTest = AllureReporter.addSuiteLabelsToTestCase(currentTest, testPath);
 		this.pushTest(currentTest);
 	}
 
 	passTestCase(): void {
-		if (this.currentTest === null) {
+		if (!this.currentTest) {
 			throw new Error('passTestCase called while no test is running');
 		}
 
@@ -191,7 +192,7 @@ export default class AllureReporter {
 	}
 
 	pendingTestCase(test: jest.Circus.TestEntry): void {
-		if (this.currentTest === null) {
+		if (!this.currentTest) {
 			throw new Error('pendingTestCase called while no test is running');
 		}
 
@@ -200,7 +201,7 @@ export default class AllureReporter {
 	}
 
 	failTestCase(error: Error | any): void {
-		if (this.currentTest === null) {
+		if (!this.currentTest) {
 			throw new Error('failTestCase called while no test is running');
 		}
 
@@ -212,14 +213,14 @@ export default class AllureReporter {
 			return;
 		}
 
-		const {status, message, trace} = this.handleError(error);
+		const {status, message, trace} = AllureReporter.handleError(error);
 
 		this.currentTest.status = status;
 		this.currentTest.statusDetails = {message, trace};
 	}
 
 	endTest() {
-		if (this.currentTest === null) {
+		if (!this.currentTest) {
 			throw new Error('endTest called while no test is running');
 		}
 
@@ -233,7 +234,7 @@ export default class AllureReporter {
 			// Allure-JS-Commons does not support HTML so we workaround this by providing the file extension.
 			return this.allureRuntime.writeAttachment(content, {
 				contentType: type,
-				fileExtension: 'html'
+				fileExtension: 'html',
 			});
 		}
 
@@ -264,10 +265,10 @@ export default class AllureReporter {
 		this.suites.pop();
 	}
 
-	private handleError(error: Error | any) {
+	private static handleError(error: Error | any) {
 		if (Array.isArray(error)) {
 			// Test_done event sends an array of arrays containing errors.
-			error = _.flattenDeep(error)[0];
+			error = flattenDeep(error)[0];
 		}
 
 		let status = Status.BROKEN;
@@ -305,12 +306,12 @@ export default class AllureReporter {
 		return {
 			status,
 			message: stripAnsi(message),
-			trace: stripAnsi(trace)
+			trace: stripAnsi(trace),
 		};
 	}
 
-	private extractCodeDetails(serializedTestCode: string) {
-		const docblock = this.extractDocBlock(serializedTestCode);
+	private static extractCodeDetails(serializedTestCode: string) {
+		const docblock = AllureReporter.extractDocBlock(serializedTestCode);
 		const {pragmas, comments} = parseWithComments(docblock);
 
 		let code = serializedTestCode.replace(docblock, '');
@@ -322,7 +323,7 @@ export default class AllureReporter {
 		return {code, comments, pragmas};
 	}
 
-	private extractDocBlock(contents: string): string {
+	private static extractDocBlock(contents: string): string {
 		const docblockRe = /^\s*(\/\*\*?(.|\r?\n)*?\*\/)/gm;
 
 		const match = contents.match(docblockRe);
@@ -369,7 +370,7 @@ export default class AllureReporter {
 		}
 	}
 
-	private addSuiteLabelsToTestCase(currentTest: AllureTest, testPath: string): AllureTest {
+	private static addSuiteLabelsToTestCase(currentTest: AllureTest, testPath: string): AllureTest {
 		const isWindows = os.type() === 'Windows_NT';
 		const pathDelimiter = isWindows ? '\\' : '/';
 		const pathsArray = testPath.split(pathDelimiter);
@@ -394,8 +395,8 @@ export default class AllureReporter {
 	}
 
 	// TODO: Use if describe blocks are present.
-	private collectTestParentNames(
-		parent: jest.Circus.TestEntry | jest.Circus.DescribeBlock | undefined
+	private static collectTestParentNames(
+		parent: jest.Circus.TestEntry | jest.Circus.DescribeBlock | undefined,
 	) {
 		const testPath = [];
 		do {

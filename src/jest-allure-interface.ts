@@ -34,7 +34,7 @@ export enum ContentType {
 	WEBM = 'video/webm',
 	JPEG = 'image/jpeg',
 	// Custom extensions:
-	HTML = 'text/html'
+	HTML = 'text/html',
 }
 
 export default class JestAllureInterface extends Allure {
@@ -44,17 +44,17 @@ export default class JestAllureInterface extends Allure {
 	constructor(
 		private readonly reporter: AllureReporter,
 		runtime: AllureRuntime,
-		jiraUrl?: string
+		jiraUrl?: string,
 	) {
 		super(runtime);
 		this.jiraUrl = jiraUrl ?? '';
 	}
 
 	get currentExecutable(): AllureStep | AllureTest | ExecutableItemWrapper {
-		const executable: AllureStep | AllureTest | ExecutableItemWrapper | null =
-      this.reporter.currentStep ??
-      this.reporter.currentTest ??
-			this.reporter.currentExecutable;
+		const executable: AllureStep | AllureTest | ExecutableItemWrapper | undefined
+      = this.reporter.currentStep
+      ?? this.reporter.currentTest
+			?? this.reporter.currentExecutable;
 
 		if (!executable) {
 			throw new Error('No executable!');
@@ -113,6 +113,7 @@ export default class JestAllureInterface extends Allure {
 		return new StepWrapper(this.reporter, allureStep);
 	}
 
+	// @ts-expect-error
 	async step<T>(name: string, body: (step: StepInterface) => any): Promise<any> {
 		const wrappedStep = this.startStep(name);
 		let result;
@@ -143,7 +144,7 @@ export default class JestAllureInterface extends Allure {
 	logStep(
 		name: string,
 		status: Status,
-		attachments?: Array<{name: string; content: string; type: ContentType | string | AttachmentOptions}>
+		attachments?: Array<{name: string; content: string; type: ContentType | string | AttachmentOptions}>,
 	): void {
 		const step = this.startStep(name);
 
@@ -181,7 +182,7 @@ export default class JestAllureInterface extends Allure {
 	attachment(
 		name: string,
 		content: Buffer | string,
-		type: ContentType | string | AttachmentOptions
+		type: ContentType | string | AttachmentOptions,
 	): void {
 		const file = this.reporter.writeAttachment(content, type);
 		this.currentExecutable.addAttachment(name, type, file);
@@ -190,14 +191,14 @@ export default class JestAllureInterface extends Allure {
 	testAttachment(
 		name: string,
 		content: Buffer | string,
-		type: ContentType | string | AttachmentOptions
+		type: ContentType | string | AttachmentOptions,
 	): void {
 		const file = this.reporter.writeAttachment(content, type);
 		this.currentTest.addAttachment(name, type, file);
 	}
 
 	get currentTest(): AllureTest {
-		if (this.reporter.currentTest === null) {
+		if (!this.reporter.currentTest) {
 			throw new Error('No test running!');
 		}
 
