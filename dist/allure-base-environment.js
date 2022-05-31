@@ -8,7 +8,7 @@ function extendAllureBaseEnvironment(Base) {
     return class AllureBaseEnvironment extends Base {
         constructor(config, context) {
             super(config, context);
-            this.handleTestEvent = (event, state) => {
+            this.handleTestEvent = async (event, state) => {
                 var _a;
                 switch (event.name) {
                     case 'setup':
@@ -136,6 +136,10 @@ function extendAllureBaseEnvironment(Base) {
                         */
                         //
                         break;
+                }
+                if (super.handleTestEvent) {
+                    // @ts-ignore
+                    await super.handleTestEvent(event, state);
                 }
             };
             if (typeof config.testEnvironmentOptions.testPath === 'string') {

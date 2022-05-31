@@ -69,7 +69,7 @@ function extendAllureBaseEnvironment<TBase extends typeof JestEnvironment>(Base:
 			return super.teardown();
 		}
 
-		handleTestEvent = (event: Circus.Event, state: Circus.State) => {
+		handleTestEvent = async (event: Circus.Event, state: Circus.State) => {
 			switch (event.name) {
 				case 'setup':
 					break;
@@ -197,6 +197,10 @@ function extendAllureBaseEnvironment<TBase extends typeof JestEnvironment>(Base:
 					*/
 					//
 					break;
+			}
+			if (super.handleTestEvent) {
+				// @ts-ignore
+				await super.handleTestEvent(event, state);
 			}
 		};
 	};

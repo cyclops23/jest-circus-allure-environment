@@ -6,6 +6,7 @@ declare global {
 
 export {default} from './allure-node-environment';
 export {default as extendAllureBaseEnvironment} from './allure-base-environment';
+export {default as allureReporter} from './allure-reporter';
 
 export * from 'allure-js-commons';
 export {ContentType} from './jest-allure-interface';
