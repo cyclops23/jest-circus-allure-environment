@@ -139,7 +139,7 @@ function extendAllureBaseEnvironment(Base) {
                 }
                 if (super.handleTestEvent) {
                     // @ts-ignore
-                    await super.handleTestEvent(event, state);
+                    return super.handleTestEvent(event, state);
                 }
             };
             if (typeof config.testEnvironmentOptions.testPath === 'string') {

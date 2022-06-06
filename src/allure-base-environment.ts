@@ -200,7 +200,7 @@ function extendAllureBaseEnvironment<TBase extends typeof JestEnvironment>(Base:
 			}
 			if (super.handleTestEvent) {
 				// @ts-ignore
-				await super.handleTestEvent(event, state);
+				return super.handleTestEvent(event, state);
 			}
 		};
 	};
