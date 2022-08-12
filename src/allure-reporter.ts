@@ -317,7 +317,7 @@ export default class AllureReporter {
 		let code = serializedTestCode.replace(docblock, '');
 
 		// Add newline before the first expect()
-		code = code.split(/(expect[\S\s.]*)/g).join('\n');
+		code = code.split(/(expect[\S\s.]*)/g).join('\n').replace("function ()", "function anonymous ()");
 		code = prettier.format(code, {parser: 'typescript', plugins: [parser]});
 
 		return {code, comments, pragmas};
