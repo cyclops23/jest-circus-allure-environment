@@ -142,12 +142,13 @@ function extendAllureBaseEnvironment(Base) {
                     return super.handleTestEvent(event, state);
                 }
             };
-            if (typeof config.testEnvironmentOptions.testPath === 'string') {
-                this.testPath = config.testEnvironmentOptions.testPath;
+            const { globalConfig, projectConfig } = config;
+            if (typeof projectConfig.testEnvironmentOptions.testPath === 'string') {
+                this.testPath = projectConfig.testEnvironmentOptions.testPath;
             }
-            this.testPath = this.initializeTestPath(config, context);
+            this.testPath = this.initializeTestPath(projectConfig, context);
             this.testFileName = (0, path_1.basename)(this.testPath);
-            this.reporter = this.initializeAllureReporter(config);
+            this.reporter = this.initializeAllureReporter(projectConfig);
             this.global.allure = this.reporter.getImplementation();
         }
         initializeTestPath(config, context) {

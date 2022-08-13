@@ -4,6 +4,7 @@ import type {Circus, Config} from '@jest/types';
 
 import type {EnvironmentContext, JestEnvironment} from '@jest/environment';
 import AllureReporter from './allure-reporter';
+import type {JestEnvironmentConfig} from "@jest/environment";
 
 function extendAllureBaseEnvironment<TBase extends typeof JestEnvironment>(Base: TBase): TBase {
 	// @ts-expect-error (ts(2545)) Incorrect assumption about a mixin class: https://github.com/microsoft/TypeScript/issues/37142
@@ -13,18 +14,20 @@ function extendAllureBaseEnvironment<TBase extends typeof JestEnvironment>(Base:
 		private readonly testPath: string;
 		private readonly testFileName: string;
 
-		constructor(config: Config.ProjectConfig, context: EnvironmentContext) {
+		constructor(config: JestEnvironmentConfig, context: EnvironmentContext) {
 			super(config, context);
 
-			if (typeof config.testEnvironmentOptions.testPath === 'string') {
-				this.testPath = config.testEnvironmentOptions.testPath;
+			const { globalConfig, projectConfig } = config;
+
+			if (typeof projectConfig.testEnvironmentOptions.testPath === 'string') {
+				this.testPath = projectConfig.testEnvironmentOptions.testPath;
 			}
 
-			this.testPath = this.initializeTestPath(config, context);
+			this.testPath = this.initializeTestPath(projectConfig, context);
 
 			this.testFileName = basename(this.testPath);
 
-			this.reporter = this.initializeAllureReporter(config);
+			this.reporter = this.initializeAllureReporter(projectConfig);
 
 			this.global.allure = this.reporter.getImplementation();
 		}

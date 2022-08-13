@@ -1,1 +1,1 @@
-{"version":3,"file":"allure-node-environment.js","sourceRoot":"","sources":["../src/allure-node-environment.ts"],"names":[],"mappings":";;AAAA,yDAA0D;AAE1D,uEAAoE;AAEpE,kBAAe,IAAA,iCAA2B,EAAC,eAAe,CAAC,CAAC"}
+{"version":3,"file":"allure-node-environment.js","sourceRoot":"","sources":["../src/allure-node-environment.ts"],"names":[],"mappings":";;AAAA,yDAA0D;AAE1D,uEAAoE;AAEpE,kBAAe,IAAA,iCAA2B,EAAC,eAAe,CAAC,eAAe,CAAC,CAAC"}
